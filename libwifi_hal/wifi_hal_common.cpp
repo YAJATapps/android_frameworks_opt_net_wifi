@@ -45,6 +45,7 @@ extern "C" int delete_module(const char *, unsigned int);
 
 static const char DRIVER_PROP_NAME[] = "wlan.driver.status";
 static bool is_driver_loaded = false;
+#ifndef BOARD_WIFI_VENDOR_COMMON
 #ifdef WIFI_DRIVER_MODULE_PATH
 static const char DRIVER_MODULE_NAME[] = WIFI_DRIVER_MODULE_NAME;
 static const char DRIVER_MODULE_TAG[] = WIFI_DRIVER_MODULE_NAME " ";
@@ -52,6 +53,9 @@ static const char DRIVER_MODULE_PATH[] = WIFI_DRIVER_MODULE_PATH;
 static const char DRIVER_MODULE_ARG[] = WIFI_DRIVER_MODULE_ARG;
 static const char MODULE_FILE[] = "/proc/modules";
 #endif
+#endif
+
+#include "wifi_hal_hook.h"
 
 #ifdef WIFI_DRIVER_STATE_CTRL_PARAM
 int kDriverStateAccessRetrySleepMillis = 200;
@@ -134,7 +138,7 @@ int is_wifi_driver_loaded() {
   char driver_status[PROPERTY_VALUE_MAX];
 #ifdef WIFI_DRIVER_MODULE_PATH
   FILE *proc;
-  char line[sizeof(DRIVER_MODULE_TAG) + 10];
+  char line[strlen(DRIVER_MODULE_TAG) + 10];
 #endif
 
   if (!property_get(DRIVER_PROP_NAME, driver_status, NULL)) {
@@ -142,7 +146,15 @@ int is_wifi_driver_loaded() {
   }
 
   if (!is_driver_loaded) {
+    /*
+     * If thread exit abnormal, dure to "is_driver_loaded" cannot
+     * hold it's value before, we cannot get driver real status
+     * from it. Here we just print some debug info rather than
+     * return.
     return 0;
+     */
+    LOG(INFO) << "Driver " << DRIVER_MODULE_NAME \
+              << " not load? I'm not sure.";
   } /* driver not loaded */
 
 #ifdef WIFI_DRIVER_MODULE_PATH

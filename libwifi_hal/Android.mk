@@ -74,6 +74,10 @@ LOCAL_CFLAGS := $(wifi_hal_cflags)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 LOCAL_SHARED_LIBRARIES := libbase
 LOCAL_HEADER_LIBRARIES := libcutils_headers
+ifeq ($(BOARD_WIFI_VENDOR),common)
+LOCAL_CPPFLAGS   += -DBOARD_WIFI_VENDOR_COMMON
+LOCAL_C_INCLUDES += hardware/aw/wireless/hwinfo
+endif
 LOCAL_SRC_FILES := wifi_hal_common.cpp
 include $(BUILD_STATIC_LIBRARY)
 
@@ -118,6 +122,21 @@ endif
   else ifeq ($(BOARD_WLAN_DEVICE), realtek)
     # support Realtek WIFI HAL
     LIB_WIFI_HAL := libwifi-hal-rtk
+  else ifeq ($(BOARD_WLAN_DEVICE), xradio)
+    # support XRadio WIFI HAL
+    LIB_WIFI_HAL := libwifi-hal-xradio
+  else ifeq ($(BOARD_WLAN_DEVICE), ssv)
+    # support ssv WIFI HAL
+    LIB_WIFI_HAL := libwifi-hal-ssv
+  else ifeq ($(BOARD_WLAN_DEVICE), sprd)
+    # support sprd WIFI HAL
+    LIB_WIFI_HAL := libwifi-hal-sprd
+  else ifeq ($(BOARD_WLAN_DEVICE), aic)
+    # support aic WIFI HAL
+    LIB_WIFI_HAL := libwifi-hal-aic
+  else ifeq ($(BOARD_WLAN_DEVICE), common)
+    # support aw autodetect WIFI HAL
+    LIB_WIFI_HAL := libwifi-hal-autodetect
   else ifeq ($(BOARD_WLAN_DEVICE), emulator)
     LIB_WIFI_HAL := libwifi-hal-emu
   else ifeq ($(BOARD_WLAN_DEVICE), slsi)
